@@ -7,6 +7,7 @@ contract SimpleLottery {
     address[] public players;
 
     event Winner(address winner, uint256 prize);
+    event TicketPurchased(address player, uint256 price);
 
     constructor(uint256 _ticketPrice) {
         owner = msg.sender;
@@ -14,19 +15,23 @@ contract SimpleLottery {
     }
 
     function buyTicket() public payable {
-        require(msg.value == ticketPrice, "Incorrect ticket price");
+        require(msg.value == ticketPrice && ticketPrice > 0, "Incorrect ticket price");
         players.push(msg.sender);
+        emit TicketPurchased(msg.sender, msg.value);
     }
 
     function drawWinner() public {
         require(msg.sender == owner, "Only owner can draw winner");
         require(players.length > 0, "No players participated");
+
         uint256 index = random() % players.length;
         address winner = players[index];
         uint256 prize = address(this).balance;
-        payable(winner).transfer(prize);
+        (bool success, ) = payable(winner).call{value: prize}("");
+        require(success, "Prize transfer failed");
+
         emit Winner(winner, prize);
-        players = new address ; // reset players array
+        delete players;
     }
 
     function random() private view returns (uint256) {
