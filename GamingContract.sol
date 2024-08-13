@@ -11,7 +11,7 @@ contract SimpleLottery {
     event TicketPurchased(address player, uint256 price);
     event TicketPriceUpdated(uint256 newPrice);
     event OwnershipTransferred(address previousOwner, address newOwner);
-
+############
     constructor(uint256 _ticketPrice) {
         owner = msg.sender;
         ticketPrice = _ticketPrice;
